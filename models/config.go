@@ -13,10 +13,10 @@ type User struct {
 	Password  string    `gorm:"type:varchar(256)"`              // 密码
 	Emial     string    `gorm:"type:varchar(100);unique_index"` // 邮箱
 	Token     string    `gorm:"type:varchar(100)"`              // token
-	Role      int       `gorm:"type:int(1)"`                    // 角色
+	Role      int       `gorm:"type:int(1);default:1"`          // 角色
 	Frequency int       `gorm:"type:int(1000)"`                 // 访问频率
-	CreatedAt time.Time `time_format:"2006-01-02 15:04:05"`
-	UpdatedAt time.Time `time_format:"2006-01-02 15:04:05"`
+	CreatedAt time.Time `time_format:"2006-01-02 15:04:05"`     // 创建时间
+	UpdatedAt time.Time `time_format:"2006-01-02 15:04:05"`     // 更新时间
 }
 
 var DB *gorm.DB

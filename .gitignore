@@ -1,3 +1,4 @@
 .idea
 gorm.db
 tmp
+*.db

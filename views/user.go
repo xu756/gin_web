@@ -88,7 +88,9 @@ func UserRegister(c *gin.Context) {
 	db.Create(&user)
 	c.JSON(200, gin.H{
 		"code": 200,
-		"data": user,
-		"msg":  "注册成功",
+		"data": gin.H{
+			"token": token,
+		},
+		"msg": "注册成功",
 	})
 }

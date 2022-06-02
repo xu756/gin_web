@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	InitRouter()
+	InitRouter() //路由配置
 }

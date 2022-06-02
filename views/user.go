@@ -7,6 +7,7 @@ import (
 	"example.com/mod/models"
 	"github.com/gin-gonic/gin"
 	"log"
+	"path"
 	"time"
 )
 
@@ -111,7 +112,41 @@ func UserInfo(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{
 		"code": 200,
-		"data": user,
-		"msg":  "获取用户信息成功",
+		"userinfo": gin.H{
+			"username": user.UserName,
+			"emial":    user.Emial,
+		},
+		"msg": "获取用户信息成功",
+	})
+}
+
+// UploadPortrait 上传头像
+func UploadPortrait(c *gin.Context) {
+	// 获取上传文件
+	file, err := c.FormFile("file")
+	if err != nil {
+		{
+			log.Panicln("无法获取上传文件")
+			return
+		}
+
+	}
+	// 获取文件名
+	filename := file.Filename
+	// 获取文件后缀
+	ext := path.Ext(filename)
+	// 将文件写入
+	err = c.SaveUploadedFile(file, "./media/upload/user/"+filename)
+	if err != nil {
+		log.Panicln("无法保存文件")
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "上传成功",
+		"data": gin.H{
+			"filename": filename,
+			"ext":      ext,
+		},
 	})
 }

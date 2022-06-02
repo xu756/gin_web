@@ -2,3 +2,4 @@
 gorm.db
 tmp
 *.db
+media

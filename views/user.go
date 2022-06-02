@@ -48,9 +48,9 @@ func UserLogin(c *gin.Context) {
 	user.Frequency = user.Frequency + 1
 	db.Save(&user)
 	c.JSON(200, gin.H{
-		"code": 200,
-		"data": user,
-		"msg":  "登录成功",
+		"code":  200,
+		"token": token,
+		"msg":   "登录成功",
 	})
 }
 
@@ -92,5 +92,26 @@ func UserRegister(c *gin.Context) {
 			"token": token,
 		},
 		"msg": "注册成功",
+	})
+}
+
+// UserInfo 获取用户信息
+func UserInfo(c *gin.Context) {
+	models.InitMysqlDB()
+	var db = models.DB
+	var user models.User
+	token := c.Param("token") // 获取token
+	db.Where("token = ?", token).First(&user)
+	if user.Id == 0 {
+		c.JSON(200, gin.H{
+			"code": 300,
+			"msg":  "用户不存在，请重新登录",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"data": user,
+		"msg":  "获取用户信息成功",
 	})
 }

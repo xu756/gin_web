@@ -146,7 +146,7 @@ func UploadPortrait(c *gin.Context) {
 		"msg":  "上传成功",
 		"data": gin.H{
 			"filename": filename,
-			"ext":      ext,
+			"ext":      ext, // 后缀
 		},
 	})
 }

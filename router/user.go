@@ -12,7 +12,7 @@ func UserRouter(r *gin.Engine) *gin.Engine {
 	rr.POST("/login", views.UserLogin)                                 // 登录
 	rr.POST("/register", views.UserRegister)                           // 注册
 	rr.GET("/userinfo/user=:token", views.UserInfo)                    // 获取用户信息
-	rr.GET("/set/portrait", views.UploadPortrait)                      // 上传头像
+	rr.GET("/set/portrait/token=:token", views.UploadPortrait)         // 上传头像
 	rr.StaticFS("/get/portrait", gin.Dir("./media/upload/user", true)) // 获取头像
 	return r
 }

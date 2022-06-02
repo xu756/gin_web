@@ -7,6 +7,7 @@ import (
 	"example.com/mod/models"
 	"github.com/gin-gonic/gin"
 	"log"
+	"os"
 	"path"
 	"time"
 )
@@ -122,30 +123,53 @@ func UserInfo(c *gin.Context) {
 
 // UploadPortrait 上传头像
 func UploadPortrait(c *gin.Context) {
+	// 获取用户信息
+	token := c.Param("token") // 获取token
+	models.InitMysqlDB()
+	var db = models.DB
+	var user models.User
+	db.Where("token = ?", token).First(&user)
+	if user.Id == 0 {
+		c.JSON(200, gin.H{
+			"code": 300,
+			"msg":  "用户不存在，请重新登录",
+		})
+		return
+	}
 	// 获取上传文件
 	file, err := c.FormFile("file")
 	if err != nil {
-		{
-			log.Panicln("无法获取上传文件")
-			return
-		}
-
+		log.Panicln("无法获取上传文件")
+		return
 	}
 	// 获取文件名
 	filename := file.Filename
 	// 获取文件后缀
 	ext := path.Ext(filename)
+	// 生成新的文件名
+	h := sha256.New()
+	h.Write([]byte(user.UserName + time.Now().String() + filename))
+	filename = hex.EncodeToString(h.Sum(nil)) + ext
+	// 删除旧头像
+	if user.Portrait != "" {
+		err := os.Remove("media/upload/user/" + user.Portrait)
+		if err != nil {
+			return
+		}
+	}
 	// 将文件写入
 	err = c.SaveUploadedFile(file, "./media/upload/user/"+filename)
 	if err != nil {
 		log.Panicln("无法保存文件")
 		return
 	}
+	user.Portrait = filename
+	db.Save(&user)
 	c.JSON(200, gin.H{
 		"code": 200,
 		"msg":  "上传成功",
 		"data": gin.H{
-			"filename": filename,
+			"filename": "/get/portrait/" + filename,
 			"ext":      ext, // 后缀
 		},
 	})

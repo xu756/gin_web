@@ -16,6 +16,7 @@ type UserRole struct {
 type User struct {
 	Id        int       `primaryKey:"true"`                     // 自增ID
 	UserName  string    `gorm:"type:varchar(100);unique_index"` // 用户名
+	Portrait  string    `gorm:"type:varchar(100)"`              // 头像
 	Password  string    `gorm:"type:varchar(256)"`              // 密码
 	Emial     string    `gorm:"type:varchar(100);"`             // 邮箱
 	Token     string    `gorm:"type:varchar(100)"`              // token

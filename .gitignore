@@ -1,6 +1,6 @@
 .idea
-gorm.db
+/gorm.db
 tmp
 runner-build.exe
-*.db
 media
+/tmp/

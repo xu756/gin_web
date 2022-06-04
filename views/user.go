@@ -30,15 +30,15 @@ func UserLogin(c *gin.Context) {
 	db.Where("user_name = ?", data["username"]).First(&user)
 	if user.Id == 0 {
 		c.JSON(200, gin.H{
-			"code":    201,
-			"message": "用户名不存在",
+			"code": 201,
+			"msg":  "用户名不存在",
 		})
 		return
 	}
 	if user.Password != data["password"] {
 		c.JSON(200, gin.H{
-			"code":    202,
-			"message": "密码错误",
+			"code": 202,
+			"msg":  "密码错误",
 		})
 		return
 	}
@@ -74,8 +74,8 @@ func UserRegister(c *gin.Context) {
 	db.Where("user_name = ?", data["username"]).First(&user)
 	if user.Id != 0 {
 		c.JSON(200, gin.H{
-			"code":    201,
-			"message": "用户名已存在",
+			"code": 201,
+			"msg":  "用户名已存在",
 		})
 		return
 	}
@@ -106,7 +106,7 @@ func UserInfo(c *gin.Context) {
 	db.Where("token = ?", token).First(&user)
 	if user.Id == 0 {
 		c.JSON(200, gin.H{
-			"code": 300,
+			"code": 400,
 			"msg":  "用户不存在，请重新登录",
 		})
 		return
@@ -131,7 +131,7 @@ func UploadPortrait(c *gin.Context) {
 	db.Where("token = ?", token).First(&user)
 	if user.Id == 0 {
 		c.JSON(200, gin.H{
-			"code": 300,
+			"code": 400,
 			"msg":  "用户不存在，请重新登录",
 		})
 		return
@@ -173,4 +173,53 @@ func UploadPortrait(c *gin.Context) {
 			"ext":      ext, // 后缀
 		},
 	})
+}
+
+// ResetPassword 重置密码
+func ResetPassword(c *gin.Context) {
+	data := make(map[string]interface{}) // 定义一个map 存储客户端数据
+	err := c.BindJSON(&data)             // 获取客户端数据
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code": 500,
+			"msg":  "无法解析数据",
+		})
+	}
+	if data["password"].(string) == data["NewPassword"].(string) {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "两次密码一致,已锁定用户",
+		})
+		return
+	}
+	models.InitMysqlDB() // 初始化数据库
+	var db = models.DB
+	var user models.User
+	// 查询用户 根据密码 token查询
+	w := sha256.New()
+	w.Write([]byte(data["password"].(string)))
+	data["password"] = hex.EncodeToString(w.Sum(nil)) // 对密码进行加密
+	db.Where("password = ? and token = ?", data["password"].(string), data["token"].(string)).First(&user)
+	if user.Id == 0 {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "用户不存在，请重新登录",
+		})
+		return
+	}
+	// 对密码进行加密
+	h := sha256.New()
+	h.Write([]byte(data["NewPassword"].(string)))
+	user.Password = hex.EncodeToString(h.Sum(nil)) // 将加密后的密码存入数据库
+	h = sha512.New()
+	h.Write([]byte(user.UserName + user.Password + time.Now().String()))
+	token := hex.EncodeToString(h.Sum(nil)) // 将加密后的token存入数据库
+	user.Token = token
+	db.Save(&user)
+	c.JSON(200, gin.H{
+		"code":  200,
+		"msg":   "重置密码成功",
+		"token": token,
+	})
+
 }

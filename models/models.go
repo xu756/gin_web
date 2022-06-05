@@ -14,16 +14,17 @@ type UserRole struct {
 }
 
 type User struct {
-	Id        int       `primaryKey:"true"`                     // 自增ID
-	UserName  string    `gorm:"type:varchar(100);unique_index"` // 用户名
-	Portrait  string    `gorm:"type:varchar(100)"`              // 头像
-	Password  string    `gorm:"type:varchar(256)"`              // 密码
-	Emial     string    `gorm:"type:varchar(100);"`             // 邮箱
-	Token     string    `gorm:"type:varchar(100)"`              // token
-	Role      string    `gorm:"type:varchar(100)"`
-	Frequency int       `gorm:"type:int(1000)"`             // 访问频率
-	CreatedAt time.Time `time_format:"2006-01-02 15:04:05"` // 创建时间
-	UpdatedAt time.Time `time_format:"2006-01-02 15:04:05"` // 更新时间
+	Id           int       `primaryKey:"true"`                     // 自增ID
+	UserName     string    `gorm:"type:varchar(100);unique_index"` // 用户名
+	Portrait     string    `gorm:"type:varchar(100)"`              // 头像
+	Password     string    `gorm:"type:varchar(256)"`              // 密码
+	Emial        string    `gorm:"type:varchar(100);"`             // 邮箱
+	Token        string    `gorm:"type:varchar(100)"`              // token
+	Verification string    `gorm:"type:varchar(100)"`              // 验证码
+	Role         string    `gorm:"type:varchar(100)"`              // 角色
+	Frequency    int       `gorm:"type:int(1000)"`                 // 访问频率
+	CreatedAt    time.Time `time_format:"2006-01-02 15:04:05"`     // 创建时间
+	UpdatedAt    time.Time `time_format:"2006-01-02 15:04:05"`     // 更新时间
 }
 
 var DB *gorm.DB

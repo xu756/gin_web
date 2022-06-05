@@ -4,11 +4,14 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
+	"example.com/mod/methods"
 	"example.com/mod/models"
 	"github.com/gin-gonic/gin"
 	"log"
+	"math/rand"
 	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -221,5 +224,48 @@ func ResetPassword(c *gin.Context) {
 		"msg":   "重置密码成功",
 		"token": token,
 	})
+}
 
+// WebSendEmail 接收前端 发送邮箱验证码
+func WebSendEmail(c *gin.Context) {
+	data := make(map[string]interface{}) // 定义一个map 存储客户端数据
+	err := c.BindJSON(&data)             // 获取客户端数据
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "无法解析数据",
+		})
+		return
+	}
+	models.InitMysqlDB() // 初始化数据库
+	var db = models.DB
+	var user models.User
+	// 查询用户 根据ID token查询
+	db.Where("id = ? and token = ?", data["id"].(int), data["token"].(string)).First(&user)
+	if user.Id == 0 {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "用户不存在，请重新登录",
+		})
+		return
+	}
+	// 生成6位随机数
+	var code string
+	for i := 0; i < 6; i++ {
+		code += strconv.Itoa(rand.Intn(10))
+	}
+	user.Verification = code
+	db.Save(&user)
+	// 发送邮件
+	to := &methods.EmailTo{
+		To:      data["email"].(string),
+		Subject: "绑定邮箱",
+		Body:    "您的验证码是" + code,
+	}
+	methods.SendEmail(to)
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "发送成功",
+	})
+	return
 }

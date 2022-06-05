@@ -14,6 +14,7 @@ func UserRouter(r *gin.Engine) *gin.Engine {
 	rr.GET("/userinfo/user=:token", views.UserInfo)                    // 获取用户信息
 	rr.GET("/set/portrait/token=:token", views.UploadPortrait)         // 上传头像
 	rr.StaticFS("/get/portrait", gin.Dir("./media/upload/user", true)) // 获取头像
+	rr.GET("/send/code", views.WebSendEmail)                           // 发送验证码
 	rr.POST("/reset/password", views.ResetPassword)                    // 重置密码
 	return r
 }

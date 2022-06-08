@@ -257,6 +257,7 @@ func WebSendEmail(c *gin.Context) {
 	user.Verification = code
 	db.Save(&user)
 	// 发送邮件
+
 	to := &methods.EmailTo{
 		To:      data["email"].(string),
 		Subject: "绑定邮箱",

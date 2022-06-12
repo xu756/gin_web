@@ -2,6 +2,7 @@ package router
 
 import (
 	"example.com/mod/views"
+	ws "example.com/mod/websocket"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,5 +17,6 @@ func UserRouter(r *gin.Engine) *gin.Engine {
 	rr.StaticFS("/get/portrait", gin.Dir("./media/upload/user", true)) // 获取头像
 	rr.GET("/send/code", views.WebSendEmail)                           // 发送验证码
 	rr.POST("/reset/password", views.ResetPassword)                    // 重置密码
+	rr.GET("/chat", ws.Chat)
 	return r
 }
